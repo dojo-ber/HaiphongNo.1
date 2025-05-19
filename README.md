@@ -1,16 +1,28 @@
-🔍 Projektvorschau: Tinder-ähnliche Dating-App mit Datenanalyse
+🎶 Projektvorschau: Musikempfehlungsplattform basierend auf Liedtextanalyse
 Projektziel:
-Entwicklung einer webbasierten Dating-Plattform, die das klassische „Swipe“-Prinzip (ähnlich Tinder) nutzt und durch datengetriebene Analysen personalisierte Empfehlungen liefert.
+Entwicklung einer webbasierten Plattform, auf der Nutzer Liedtexte hochladen können, um automatisiert Themen, Stimmungen und ähnliche Songs zu entdecken. Das Projekt verbindet moderne Natural Language Processing (NLP) mit nutzerzentriertem Webdesign und Musikinteresse.
 
-🛠️ Funktionen der App:
-Benutzermanagement: Nutzer können sich registrieren, einloggen und ein persönliches Profil mit Interessen, Bildern und Bio anlegen.
+🧩 Kernfunktionen der Plattform:
+Benutzermanagement: Nutzer können sich registrieren, einloggen und ihr Profil verwalten.
 
-Matching-Mechanismus: Nutzer swipen nach links/rechts; bei gegenseitigem „Like“ entsteht ein Match.
+Liedtext-Search: Nutzer sucht Lied
 
-Access Control: Nutzerprofile können vollständig oder teilweise privat sein. Nur gematchte Nutzer dürfen Nachrichten austauschen.
+Textanalyse: Automatische Erkennung von Themen (z. B. Liebe, Politik, Verlust) und Stimmung (positiv, traurig, nostalgisch).
 
-Adminpanel: Ein Administrator kann alle Profile, Matches und Nachrichten einsehen (z. B. zu Moderationszwecken).
+Musikempfehlung: Auf Basis der Textanalyse werden ähnliche Songs vorgeschlagen.
 
-Dateiupload: Nutzer können Bilder und kurze Texte hochladen.
+Playlist-Funktion: Nutzer erstellen Playlists, die privat oder öffentlich sein können.
 
-Rowan
+Adminzugang: Administrator sieht alle Inhalte (Liedtexte, Playlists) zur Moderation.
+
+📊 Analytischer Schwerpunkt:
+NLP-basierte Themenextraktion (z. B. mit TF-IDF, LDA oder BERTopic)
+
+Sentiment-Analyse (Stimmungsbewertung des Textes mit VADER oder spaCy)
+
+Ähnlichkeitsanalyse durch Textvergleich (z. B. Cosine Similarity)
+
+Clustering und Visualisierung von Liedtextgruppen nach Inhalt und Emotion
+
+Optional: Nutzung einer externen API (z. B. Genius, Musixmatch) zur Liedtextbeschaffung
+
