@@ -1,0 +1,15 @@
+Starting virtual environment:
+...\HaiphongNo.1\TU_fy>venv\Scripts\activate
+
+If virtual environment not installed or in project files included:
+...\HaiphongNo.1\TU_fy>python -m venv venv
+
+then do "Starting virtual environment"
+
+If in environment, then execute:
+(base) ...\HaiphongNo.1\TU_fy>python manage.py runserver
+
+How to shutdown server:
+(base) ...\HaiphongNo.1\TU_fy>deactivate
+
+
