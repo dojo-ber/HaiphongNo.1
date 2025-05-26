@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">🎵 Liedtext-Suche</h1>
+
+    <!-- Formular -->
+    <form method="GET" action="{% url 'index' %}" class="row g-3">
+      <div class="col-md-6">
+        <input
+          type="text"
+          name="artist"
+          class="form-control"
+          placeholder="🎤 Künstlername eingeben..."
+          required
+        >
+      </div>
+      <div class="col-md-6">
+        <input
+          type="text"
+          name="title"
+          class="form-control"
+          placeholder="🎵 Songtitel eingeben..."
+          required
+        >
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary w-100">Songtext analysieren</button>
+      </div>
+    </form>
+
+
+    <!-- Fehleranzeige -->
+    {% if error %}
+        <div class="alert alert-danger mt-4">{{ error }}</div>
+    {% endif %}
+
+    <!-- Lyrics -->
+    {% if lyrics %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #00ffe1;">Songtext</h5>
+                <pre class="card-text">{{ lyrics }}</pre>
+  </div>
+</div>
+
+    {% endif %}
+</div>
+{% endblock %}
