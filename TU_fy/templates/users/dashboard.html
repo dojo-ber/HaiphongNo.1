@@ -2,6 +2,20 @@
 <h2>Willkommen, {{ user.username }}!</h2>
 <p>Du bist jetzt eingeloggt.</p>
 
+{% if user.is_authenticated %}
+<h3>Deine Daten:</h3>
+<ul>
+  <li>Username: {{ user.username }}</li>
+  <li>Etc:</li>
+</ul>
+{% endif %}
+
+<div class="mt-4">
+  <a href="{% url 'index' %}" class="btn btn-primary me-2">Zur Hauptseite</a>
+</div>
+<div class="mt-4">
+  <a href="{% url 'index' %}" class="btn btn-primary me-2"></a>
+</div>
 <form action="{% url 'logout' %}" method="post">
   {% csrf_token %}
   <button type="submit" class="btn btn-danger mt-3">Logout</button>

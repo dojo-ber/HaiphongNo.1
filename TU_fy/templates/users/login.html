@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <style>
   /* Schwarze Schrift, weißer Hintergrund für Eingabefelder */
   input[type="text"],
@@ -26,9 +24,11 @@
 <div class="login-container">
   <h2>Login</h2>
   <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
+    {% csrf_token %} {{ form.as_p }}
     <button class="btn btn-primary mt-2" type="submit">Login</button>
   </form>
+  {% if request.GET.next %}
+  <div class="alert alert-danger mt-3">Du musst dich zuerst einloggen.</div>
+  {% endif %}
 </div>
 {% endblock %}

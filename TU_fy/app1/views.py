@@ -4,12 +4,14 @@
 
 import requests
 from django.shortcuts import render
-
+from django.contrib.auth.decorators import login_required
 
 #Send request func
 def start(request):
     return render(request, 'startingscreen.html')
 
+
+@login_required
 def index(request):
     lyrics = None
     error = None
