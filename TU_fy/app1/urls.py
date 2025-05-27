@@ -1,7 +1,10 @@
+from django.urls import path, include
+
 from . import views
-from django.urls import path
+from .views import start
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.start, name='start'),
+    path('main/', views.index, name='index'),
     path('impressum/', views.imprint, name='imprint')
 ]

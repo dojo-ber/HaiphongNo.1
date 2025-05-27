@@ -1,7 +1,35 @@
-{% extends "base.html" %} {% block content %}
-<h2>Registrieren</h2>
-<form method="POST">
-  {% csrf_token %} {{ form.as_p }}
-  <button class="btn btn-primary" type="submit">Registrieren</button>
-</form>
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  input[type="text"],
+  input[type="password"],
+  input[type="email"] {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    border-radius: 4px;
+    width: 100%;
+  }
+
+  label {
+    color: #00ffe1;
+  }
+
+  .register-container {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+</style>
+
+<div class="register-container">
+  <h2>Registrieren</h2>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary mt-2" type="submit">Registrieren</button>
+  </form>
+</div>
 {% endblock %}
+

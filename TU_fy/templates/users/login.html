@@ -1,7 +1,34 @@
-{% extends "base.html" %} {% block content %}
-<h2>Login</h2>
-<form method="POST">
-  {% csrf_token %} {{ form.as_p }}
-  <button class="btn btn-primary" type="submit">Login</button>
-</form>
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* Schwarze Schrift, weißer Hintergrund für Eingabefelder */
+  input[type="text"],
+  input[type="password"] {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    border-radius: 4px;
+    width: 100%;
+  }
+
+  label {
+    color: #00ffe1; /* Türkise Labels für Stilkonsistenz */
+  }
+
+  .login-container {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+</style>
+
+<div class="login-container">
+  <h2>Login</h2>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary mt-2" type="submit">Login</button>
+  </form>
+</div>
 {% endblock %}

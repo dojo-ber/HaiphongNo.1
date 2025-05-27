@@ -7,6 +7,9 @@ from django.shortcuts import render
 
 
 #Send request func
+def start(request):
+    return render(request, 'startingscreen.html')
+
 def index(request):
     lyrics = None
     error = None

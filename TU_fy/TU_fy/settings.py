@@ -66,6 +66,8 @@ TEMPLATES = [
         },
     },
 ]
+LOGIN_REDIRECT_URL = 'dashboard'  # oder 'index' – je nachdem wohin du willst
+LOGOUT_REDIRECT_URL = 'startingscreen'  # optional
 
 WSGI_APPLICATION = "TU_fy.wsgi.application"
 
