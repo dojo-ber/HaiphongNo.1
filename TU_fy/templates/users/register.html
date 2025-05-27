@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <style>
   input[type="text"],
   input[type="password"],
@@ -26,10 +24,8 @@
 <div class="register-container">
   <h2>Registrieren</h2>
   <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
+    {% csrf_token %} {{ form.as_p }}
     <button class="btn btn-primary mt-2" type="submit">Registrieren</button>
   </form>
 </div>
 {% endblock %}
-

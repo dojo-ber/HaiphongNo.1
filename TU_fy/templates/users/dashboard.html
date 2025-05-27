@@ -13,9 +13,7 @@
 <div class="mt-4">
   <a href="{% url 'index' %}" class="btn btn-primary me-2">Zur Hauptseite</a>
 </div>
-<div class="mt-4">
-  <a href="{% url 'index' %}" class="btn btn-primary me-2"></a>
-</div>
+
 <form action="{% url 'logout' %}" method="post">
   {% csrf_token %}
   <button type="submit" class="btn btn-danger mt-3">Logout</button>
