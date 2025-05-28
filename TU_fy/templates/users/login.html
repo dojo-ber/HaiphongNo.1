@@ -27,7 +27,17 @@
     {% csrf_token %} {{ form.as_p }}
     <button class="btn btn-primary mt-2" type="submit">Login</button>
   </form>
-  {% if request.GET.next %}
+  {% if messages %} {% for message in messages %}
+  <div class="alert alert-info alert-dismissible fade show mt-3">
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %} {% endif %} {% if request.GET.next %}
   <div class="alert alert-danger mt-3">Du musst dich zuerst einloggen.</div>
   {% endif %}
 </div>
