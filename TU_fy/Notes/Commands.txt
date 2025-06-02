@@ -11,5 +11,25 @@ If in environment, then execute:
 
 How to shutdown server:
 (base) ...\HaiphongNo.1\TU_fy>deactivate
+(venv) C:\Users\jzinh\SkaSky\HaiphongNo.1\TU_fy\venv>
 
+
+To Use BERTopic:
+pip install bertopic
+
+Optional:
+pip install huggingface_hub[hf_xet]
+OR
+pip install hf_xet
+
+To Use SKLearning:
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORD
+
+To Use VADER:
+pip install vaderSentiment
+
+
+To Use GoEmo:
+pip install transformers torch
+from transformers import pipeline
 

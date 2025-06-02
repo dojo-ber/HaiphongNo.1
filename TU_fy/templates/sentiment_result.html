@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2 style="color: #00ffe1;">🤪Fast-Stimmungsanalyse</h2>
+
+    <div class="card p-3">
+      <h5 class="card-title" style="color: #00ffe1;">Stimmung des Songs:</h5>
+      <p style="font-size: 2rem; color: #ffffff;">{{ emoji }} {{ sentiment }}</p>
+
+      <h6 style="color: #00ffe1;">Originaltext</h6>
+      <pre style="background-color: #fff; color: #000; padding: 1rem; border-radius: 5px;">
+        {{ original_lyrics }}
+      </pre>
+    </div>
+
+
+{% endblock %}
