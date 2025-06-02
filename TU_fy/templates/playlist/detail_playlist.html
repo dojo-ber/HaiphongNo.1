@@ -1,0 +1,6 @@
+{% extends "base.html" %} {% block content%}
+
+<h1>{{playlist.name}}</h1>
+{% for song_id in songs %}
+<li>{{song_id.song.title}} by {{song_id.song.artist}}</li>
+{% endfor %} {% endblock%}
