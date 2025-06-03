@@ -1,6 +1,60 @@
-{% extends "base.html" %} {% block content%}
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1 class="text-center mb-4">🎵 Deine Playlists</h1>
 
-<h1>Your Playlist</h1>
-{% for playlist in all_playlists %}
-<li>{{playlist}}</li>
-{% endfor %} {% endblock%}
+  <!-- Neuer Kasten/Button oben -->
+  <div class="text-center mb-4">
+    <a href="{% url 'create_playlist' %}" class="btn btn-success btn-lg">
+      ➕ Neue Playlist erstellen
+    </a>
+  </div>
+
+  {% if messages %} {% for message in messages %}
+  <div class="alert alert-info alert-dismissible fade show mt-3 text-center">
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %} {% endif %} {% if all_playlists %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for playlist in all_playlists %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <h5 class="card-title text-info">{{ playlist.name }}</h5>
+          <p class="card-text text-white">
+            Erstellt am: {{ playlist.created_at|date:"d.m.Y" }}
+          </p>
+          <div
+            class="mt-auto d-flex justify-content-between align-items-center"
+          >
+            <a
+              href="{% url 'detail_playlist' playlist.id %}"
+              class="btn btn-sm btn-primary"
+            >
+              Details ansehen
+            </a>
+            <a
+              href="{% url 'delete_playlist' playlist.id %}"
+              class="btn btn-sm btn-outline-danger"
+            >
+              🗑️ Löschen
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-warning text-center mt-5" role="alert">
+    Du hast noch keine Playlists erstellt.
+    <a href="{% url 'create_playlist' %}" class="alert-link">Jetzt starten!</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

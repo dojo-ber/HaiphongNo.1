@@ -1,0 +1,21 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+  <h2 class="text-danger">🎶 Playlist löschen</h2>
+  <p>
+    Bist du sicher, dass du die Playlist
+    <strong>"{{ playlist.name }}"</strong> löschen möchtest?
+  </p>
+
+  {% if messages %} {% for message in messages %}
+  <div class="alert alert-success">{{ message }}</div>
+  {% endfor %} {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">✅ Ja, löschen</button>
+    <a href="{% url 'overview_playlist' %}" class="btn btn-secondary"
+      >❌ Abbrechen</a
+    >
+  </form>
+</div>
+{% endblock %}

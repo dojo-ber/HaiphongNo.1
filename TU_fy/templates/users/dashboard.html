@@ -1,21 +1,29 @@
 {% extends "base.html" %} {% block content %}
-<h2>Willkommen, {{ user.username }}!</h2>
-<p>Du bist jetzt eingeloggt.</p>
+<div class="container text-center">
+  <h2 class="text-info">Willkommen zurück, {{ user.username }}! 👋</h2>
 
-{% if user.is_authenticated %}
-<h3>Deine Daten:</h3>
-<ul>
-  <li>Username: {{ user.username }}</li>
-  <li>Etc:</li>
-</ul>
-{% endif %}
+  <div class="mt-4 row justify-content-center g-4">
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm border-info">
+        <div class="card-body">
+          <h5 class="card-title text-info">🎵 Deine Playlists</h5>
+          <p class="card-text text-white">
+            Erstelle, verwalte oder lösche deine Playlists.
+          </p>
+          <a href="{% url 'overview_playlist' %}" class="btn btn-outline-info">
+            Zur Playlist-Übersicht
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="mt-4">
-  <a href="{% url 'index' %}" class="btn btn-primary me-2">Zur Hauptseite</a>
+  <div class="mt-5 d-flex justify-content-center gap-3 flex-wrap">
+    <a href="{% url 'index' %}" class="btn btn-primary">Zur Hauptseite</a>
+    <form action="{% url 'logout' %}" method="post" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Logout</button>
+    </form>
+  </div>
 </div>
-
-<form action="{% url 'logout' %}" method="post">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger mt-3">Logout</button>
-</form>
 {% endblock %}

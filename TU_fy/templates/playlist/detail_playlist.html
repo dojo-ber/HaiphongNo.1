@@ -1,6 +1,33 @@
-{% extends "base.html" %} {% block content%}
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1 class="text-center text-info mb-4">{{ playlist.name }}</h1>
 
-<h1>{{playlist.name}}</h1>
-{% for song_id in songs %}
-<li>{{song_id.song.title}} by {{song_id.song.artist}}</li>
-{% endfor %} {% endblock%}
+  {% if songs %}
+  <ul class="list-group list-group-flush shadow rounded bg-dark">
+    {% for item in songs %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white border-secondary"
+    >
+      <div>
+        <strong>{{ item.song.title }}</strong><br />
+        <small class="text-muted">von {{ item.song.artist }}</small>
+      </div>
+      <span class="badge bg-info text-dark"
+        >{{ item.added_at|date:"d.m.Y" }}</span
+      >
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="alert alert-warning text-center mt-5" role="alert">
+    Diese Playlist enthält noch keine Songs.
+  </div>
+  {% endif %}
+
+  <div class="text-center mt-4">
+    <a href="{% url 'overview_playlist' %}" class="btn btn-outline-light btn-sm"
+      >← Zurück zur Übersicht</a
+    >
+  </div>
+</div>
+{% endblock %}
