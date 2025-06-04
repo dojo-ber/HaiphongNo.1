@@ -9,8 +9,9 @@ urlpatterns = [
     path('impressum/', views.imprint, name='imprint'),
     path('analyze/', views.analyze_lyrics, name='analyze_lyrics'),
     path('analyze-sentiment/', views.analyze_sentiment, name='analyze_sentiment'),
-    path('analyze/deep_sentiment/', views.deep_analyze_sentiment, name='deep_analyze_sentiment')
-
+    path('analyze/deep_sentiment/', views.deep_analyze_sentiment, name='deep_analyze_sentiment'),
+    path('search/', views.search, name='lyrics_search'), #URLs für die Songsuche
+    path('get/', views.get_lyrics, name='lyrics_get'), #URL für die Lyrics
 
 
 ]

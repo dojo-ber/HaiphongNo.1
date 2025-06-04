@@ -7,6 +7,7 @@ from django.shortcuts import render
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from transformers import pipeline
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from django.views.decorators.http import require_http_methods
 
 
 # Modell wird einmal global geladen (Performance!)
@@ -30,29 +31,42 @@ def start(request):
     return render(request, 'startingscreen.html')
 
 
+from django.shortcuts import render
+import requests
+from django.contrib.auth.decorators import login_required
+
 @login_required
 def index(request):
     lyrics = None
     error = None
-
-    artist = request.GET.get('artist')
-    title = request.GET.get('title')
-
+    artist = None
+    title = None
+    
+    if request.method == 'POST':
+        artist = request.POST.get('artist')
+        title = request.POST.get('title')
+    else:
+        artist = request.GET.get('artist')
+        title = request.GET.get('title')
+    
     if artist and title:
-        api_url = f"https://api.lyrics.ovh/v1/{artist}/{title}"
+        # URL bisschen überarbeitet
+        from urllib.parse import quote
+        api_url = f"https://api.lyrics.ovh/v1/{quote(artist)}/{quote(title)}"
         response = requests.get(api_url)
 
         if response.status_code == 200:
             data = response.json()
             lyrics = data.get('lyrics', 'Keine Lyrics gefunden.')
         else:
-            error = "Songtext nicht gefunden oder Fehler bei der API."
-
+            error = f"Fehler {response.status_code}: Songtext nicht gefunden"
+    
     return render(request, 'index.html', {
         'lyrics': lyrics,
-        'error': error
+        'error': error,
+        'artist': artist,
+        'title': title
     })
-
 
 def imprint(request):
     return render(request, 'imprint.html')
@@ -154,12 +168,51 @@ def analyze_sentiment(request):
         else:
             sentiment_result = "Neutral"
             emoji = "😐"
+        
+    
 
     return render(request, 'sentiment_result.html', {
         'sentiment': sentiment_result,
         'emoji': emoji,
         'original_lyrics': lyrics
     })
+@require_http_methods(["GET", "POST"]) #search
+def search(request):
+    context = {}
 
+    if request.method == "POST":
+        query = request.POST.get("query")
+        if query:
+            url = f"https://api.lyrics.ovh/suggest/{query}"
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                data = response.json()
+                context["results"] = data.get("data", [])
+            else:
+                context["error"] = "Fehler beim Abrufen der Songvorschläge."
+
+    return render(request, "search.html", context)
+
+
+@require_http_methods(["POST"]) #getlyrics
+def get_lyrics(request):
+    artist = request.POST.get("artist")
+    title = request.POST.get("title")
+    context = {}
+
+    if artist and title:
+        url = f"https://api.lyrics.ovh/v1/%7Bartist%7D/{title}"
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            data = response.json()
+            context["artist"] = artist
+            context["title"] = title
+            context["lyrics"] = data.get("lyrics", "Kein Songtext gefunden.")
+        else:
+            context["error"] = "Songtext konnte nicht gefunden werden."
+
+    return render(request, "lyrics.html", context)
 
 
