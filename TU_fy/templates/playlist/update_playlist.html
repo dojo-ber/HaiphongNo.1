@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block content %}
+<div class="container my-5">
+  <h1 class="text-center text-info mb-4">🎵 Playlist bearbeiten</h1>
+
+  <!-- Fehlermeldungen / Success messages -->
+  {% if messages %} {% for message in messages %}
+  <div
+    class="alert alert-{{ message.tags }} alert-dismissible fade show"
+    role="alert"
+  >
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %} {% endif %}
+
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-sm border-info">
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %} {{ form.non_field_errors }}
+
+            <div class="mb-3">
+              <label
+                for="{{ form.name.id_for_label }}"
+                class="form-label text-info"
+              >
+                Name der Playlist
+              </label>
+              {{ form.name }} {{ form.name.errors }}
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <a
+                href="{% url 'overview_playlist' %}"
+                class="btn btn-outline-secondary"
+              >
+                ← Zurück zur Übersicht
+              </a>
+              <button type="submit" class="btn btn-info text-white">
+                Änderungen speichern
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

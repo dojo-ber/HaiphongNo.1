@@ -35,7 +35,7 @@ from django.shortcuts import render
 import requests
 from django.contrib.auth.decorators import login_required
 
-@login_required
+
 def index(request):
     lyrics = None
     error = None
@@ -67,6 +67,7 @@ def index(request):
         'artist': artist,
         'title': title
     })
+    
 
 def imprint(request):
     return render(request, 'imprint.html')
@@ -123,6 +124,7 @@ def analyze_lyrics(request):
         'original_lyrics': lyrics
     })
 
+
 def deep_analyze_sentiment(request):
         if request.method == 'POST':
             lyrics = request.POST.get('lyrics', '')
@@ -148,6 +150,7 @@ def deep_analyze_sentiment(request):
                 'original_lyrics': lyrics,
                 'scores': emotions[:5]  # Optional: Top 5 anzeigen
         })
+        
 #fast or regular
 def analyze_sentiment(request):
     lyrics = request.POST.get('lyrics', '')
@@ -176,7 +179,8 @@ def analyze_sentiment(request):
         'emoji': emoji,
         'original_lyrics': lyrics
     })
-@require_http_methods(["GET", "POST"]) #search
+
+
 def search(request):
     context = {}
 
@@ -193,26 +197,5 @@ def search(request):
                 context["error"] = "Fehler beim Abrufen der Songvorschläge."
 
     return render(request, "search.html", context)
-
-
-@require_http_methods(["POST"]) #getlyrics
-def get_lyrics(request):
-    artist = request.POST.get("artist")
-    title = request.POST.get("title")
-    context = {}
-
-    if artist and title:
-        url = f"https://api.lyrics.ovh/v1/%7Bartist%7D/{title}"
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            data = response.json()
-            context["artist"] = artist
-            context["title"] = title
-            context["lyrics"] = data.get("lyrics", "Kein Songtext gefunden.")
-        else:
-            context["error"] = "Songtext konnte nicht gefunden werden."
-
-    return render(request, "lyrics.html", context)
 
 

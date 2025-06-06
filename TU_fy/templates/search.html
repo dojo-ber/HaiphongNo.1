@@ -19,61 +19,68 @@
   </form>
 
   {% if messages %}
-    <div class="mb-4">
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <div class="mb-4">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+      {{ message }}
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %} {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %} {% if results %}
+  <div class="card bg-dark border-secondary">
+    <div class="card-header bg-secondary text-white">
+      <h5 class="mb-0">Suchergebnisse</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+      {% for result in results %}
+      <li
+        class="list-group-item d-flex justify-content-between align-items-center py-2 bg-dark text-light"
+      >
+        <div class="text-truncate">
+          <span class="fw-bold text-info">{{ result.artist.name }}</span>
+          <span class="text-muted">–</span>
+          <span>{{ result.title }}</span>
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
 
-  {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-  {% endif %} 
+        <div class="btn-group">
+          <!-- Like Button für später -->
+          <button
+            class="btn btn-sm btn-outline-danger"
+            title="Zu Favoriten hinzufügen"
+          >
+            <i class="bi bi-heart"></i>
+          </button>
 
-  {% if results %}
-    <div class="card bg-dark border-secondary">
-      <div class="card-header bg-secondary text-white">
-        <h5 class="mb-0">Suchergebnisse</h5>
-      </div>
-      <ul class="list-group list-group-flush">
-        {% for result in results %}
-        <li class="list-group-item d-flex justify-content-between align-items-center py-2 bg-dark text-light">
-          <div class="text-truncate">
-            <span class="fw-bold text-info">{{ result.artist.name }}</span>
-            <span class="text-muted">–</span>
-            <span>{{ result.title }}</span>
-          </div>
-          
-          <div class="btn-group">
-            <!-- Like Button für später -->
-            <button 
-              class="btn btn-sm btn-outline-danger"
-              title="Zu Favoriten hinzufügen"
+          <!-- Songtext Button -->
+          <form action="{% url 'index' %}" method="post" class="d-inline ms-1">
+            {% csrf_token %}
+            <input
+              type="hidden"
+              name="artist"
+              value="{{ result.artist.name }}"
+            />
+            <input type="hidden" name="title" value="{{ result.title }}" />
+            <button
+              type="submit"
+              class="btn btn-sm btn-outline-info"
+              title="Songtext analysieren"
             >
-              <i class="bi bi-heart"></i>
+              <i class="bi bi-music-note-beamed"></i> Lyrics
             </button>
-            
-            <!-- Songtext Button -->
-            <form action="{% url 'index' %}" method="post" class="d-inline ms-1">
-              {% csrf_token %}
-              <input type="hidden" name="artist" value="{{ result.artist.name }}" />
-              <input type="hidden" name="title" value="{{ result.title }}" />
-              <button 
-                type="submit" 
-                class="btn btn-sm btn-outline-info"
-                title="Songtext analysieren"
-              >
-                <i class="bi bi-music-note-beamed"></i> Lyrics
-              </button>
-            </form>
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endif %} 
+          </form>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
