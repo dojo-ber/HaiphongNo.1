@@ -1,55 +1,62 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <div class="container">
   <h1 class="text-center mb-4">🎵 Deine Playlists</h1>
 
-  <!-- Neuer Kasten/Button oben -->
   <div class="text-center mb-4">
     <a href="{% url 'create_playlist' %}" class="btn btn-success btn-lg">
       ➕ Neue Playlist erstellen
     </a>
   </div>
 
-  {% if messages %} {% for message in messages %}
-  <div class="alert alert-info alert-dismissible fade show mt-3 text-center">
-    {{ message }}
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="alert"
-      aria-label="Close"
-    ></button>
-  </div>
-  {% endfor %} {% endif %} {% if all_playlists %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-info alert-dismissible fade show mt-3 text-center">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if all_playlists %}
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for playlist in all_playlists %}
     <div class="col">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column justify-content-between">
-          <h5 class="card-title text-info">{{ playlist.name }}</h5>
-          <p class="card-text text-white">
+      <div class="card h-100 shadow-sm {% if playlist.is_default %}border-success{% endif %}">
+        <!-- Album Cover Bild -->
+        <div class="ratio ratio-1x1">
+          {% if playlist.image %}
+            <img src="{{ playlist.image.url }}" class="card-img-top object-fit-cover" alt="{{ playlist.name }}">
+          {% else %}
+            <!-- Lorem Picsum als Standardbild -->
+            <img src="https://picsum.photos/300/300?random={{ playlist.id }}" 
+                 class="card-img-top object-fit-cover" 
+                 alt="Zufälliges Coverbild">
+          {% endif %}
+        </div>
+        
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title text-info">
+            {{ playlist.name }}
+            {% if playlist.is_default %}
+              <span class="badge bg-success ms-2">Standard</span>
+            {% endif %}
+          </h5>
+          <p class="card-text text-muted">
             Erstellt am: {{ playlist.created_at|date:"d.m.Y" }}
           </p>
-          <div
-            class="mt-auto d-flex justify-content-between align-items-center"
-          >
-            <a
-              href="{% url 'detail_playlist' playlist.id %}"
-              class="btn btn-sm btn-primary"
-            >
-              Details ansehen
+          <div class="mt-auto d-flex justify-content-between align-items-center">
+            <a href="{% url 'detail_playlist' playlist.id %}" class="btn btn-sm btn-primary">
+              Details
             </a>
-            <a
-              href="{% url 'update_playlist' playlist.id %}"
-              class="btn btn-sm btn-primary"
-            >
-              Update
+            <a href="{% url 'update_playlist' playlist.id %}" class="btn btn-sm btn-outline-primary">
+              Bearbeiten
             </a>
-            <a
-              href="{% url 'delete_playlist' playlist.id %}"
-              class="btn btn-sm btn-outline-danger"
-            >
-              🗑️ Löschen
-            </a>
+            {% if not playlist.is_default %}
+              <a href="{% url 'delete_playlist' playlist.id %}" class="btn btn-sm btn-outline-danger">
+                🗑️
+              </a>
+            {% endif %}
           </div>
         </div>
       </div>

@@ -1,33 +1,52 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <div class="container">
-  <h1 class="text-center text-info mb-4">{{ playlist.name }}</h1>
+  <div class="text-center mb-4">
+    <h1 class="text-info">
+      {{ playlist.name }}
+      {% if playlist.is_default %}
+        <span class="badge bg-success">Standard-Playlist</span>
+      {% endif %}
+    </h1>
+    
+    <!-- Album Cover -->
+    <div class="ratio ratio-1x1 mx-auto" style="max-width: 300px;">
+      {% if playlist.image %}
+        <img src="{{ playlist.image.url }}" class="img-fluid rounded object-fit-cover" alt="{{ playlist.name }}">
+      {% else %}
+        <!-- Lorem Picsum als Standardbild -->
+        <img src="https://picsum.photos/500/500?random={{ playlist.id }}" 
+             class="img-fluid rounded object-fit-cover" 
+             alt="Zufälliges Coverbild">
+      {% endif %}
+    </div>
+  </div>
 
+  <!-- Songs Liste -->
   {% if songs %}
-  <ul class="list-group list-group-flush shadow rounded bg-dark">
+  <ul class="list-group list-group-flush shadow rounded overflow-hidden">
     {% for item in songs %}
-    <li
-      class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white border-secondary"
-    >
-      <div>
-        <strong>{{ item.song.title }}</strong><br />
-        <small class="text-muted">von {{ item.song.artist }}</small>
+    <li class="list-group-item bg-dark text-white border-secondary">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ item.song.title }}</strong>
+          <div class="text-muted">von {{ item.song.artist }}</div>
+        </div>
+        <span class="badge bg-info text-dark">{{ item.added_at|date:"d.m.Y" }}</span>
       </div>
-      <span class="badge bg-info text-dark"
-        >{{ item.added_at|date:"d.m.Y" }}</span
-      >
     </li>
     {% endfor %}
   </ul>
   {% else %}
-  <div class="alert alert-warning text-center mt-5" role="alert">
+  <div class="alert alert-warning text-center mt-3" role="alert">
     Diese Playlist enthält noch keine Songs.
   </div>
   {% endif %}
 
   <div class="text-center mt-4">
-    <a href="{% url 'overview_playlist' %}" class="btn btn-outline-light btn-sm"
-      >← Zurück zur Übersicht</a
-    >
+    <a href="{% url 'overview_playlist' %}" class="btn btn-outline-light">
+      ← Zurück zur Übersicht
+    </a>
   </div>
 </div>
 {% endblock %}

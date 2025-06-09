@@ -15,8 +15,14 @@ class PlaylistOverview(LoginRequiredMixin, generic.ListView):
     context_object_name = 'all_playlists'
     
     def get_queryset(self):
+        # Stelle sicher, dass die Default-Playlist existiert
+        if not Playlist.objects.filter(creator=self.request.user, is_default=True).exists():
+            Playlist.objects.create(
+                creator=self.request.user,
+                name="Meine Favoriten",
+                is_default=True
+            )
         return Playlist.objects.filter(creator=self.request.user).order_by('-created_at')
-    
     
 @login_required
 def playlist_detail(request, pk):
@@ -28,7 +34,16 @@ def playlist_detail(request, pk):
         'playlist': playlist,
         'songs': songs,
     })
-    
+
+def dashboard(request):
+    # Check if default playlist exists
+    if not Playlist.objects.filter(creator=request.user, is_default=True).exists():
+        Playlist.objects.create(
+            creator=request.user,
+            name="Meine Favoriten",
+            is_default=True
+        )
+    return render(request, 'dashboard.html')
     
 class PlaylistCreateView(LoginRequiredMixin, generic.CreateView):
     model = Playlist
@@ -50,7 +65,7 @@ class PlaylistUpdateView(LoginRequiredMixin, generic.UpdateView):
     
     def dispatch(self, request, *args, **kwargs):
         playlist = get_object_or_404(Playlist, pk=kwargs['pk'])
-        if playlist.creator != request.user:
+        if playlist.creator != request.user or playlist.is_default:
             messages.error(request, "Du bist nicht berechtigt, diese Playlist zu bearbeiten.")
             return redirect('overview_playlist')
         return super().dispatch(request, *args, **kwargs)
@@ -68,7 +83,7 @@ class PlaylistDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         playlist = get_object_or_404(Playlist, pk=kwargs['pk'])
-        if playlist.creator != request.user:
+        if playlist.creator != request.user or playlist.is_default:
             messages.error(request, "Du bist nicht berechtigt, diese Playlist zu löschen.")
             return redirect('overview_playlist')
         return super().dispatch(request, *args, **kwargs)

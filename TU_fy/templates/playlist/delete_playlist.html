@@ -6,16 +6,23 @@
     <strong>"{{ playlist.name }}"</strong> löschen möchtest?
   </p>
 
-  {% if messages %} {% for message in messages %}
-  <div class="alert alert-success">{{ message }}</div>
-  {% endfor %} {% endif %}
-
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">✅ Ja, löschen</button>
-    <a href="{% url 'overview_playlist' %}" class="btn btn-secondary"
-      >❌ Abbrechen</a
-    >
-  </form>
+  {% if messages %} 
+    {% for message in messages %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endfor %} 
+  {% endif %}
+  
+  {% if playlist.is_default %}
+    <div class="alert alert-warning">
+      Diese Standard-Playlist kann nicht gelöscht werden.
+    </div>
+    <a href="{% url 'overview_playlist' %}" class="btn btn-secondary">Zurück</a>
+  {% else %}
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">✅ Ja, löschen</button>
+      <a href="{% url 'overview_playlist' %}" class="btn btn-secondary">❌ Abbrechen</a>
+    </form>
+  {% endif %}
 </div>
 {% endblock %}
