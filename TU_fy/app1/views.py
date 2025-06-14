@@ -2,12 +2,13 @@
 
 import requests
 from bertopic import BERTopic
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from transformers import pipeline
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from django.views.decorators.http import require_http_methods
+from app3.models import Song
+
 
 
 # Modell wird einmal global geladen (Performance!)
@@ -28,6 +29,8 @@ EMOJI_MAP = {
 
 #Send request func
 def start(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     return render(request, 'startingscreen.html')
 
 
@@ -72,7 +75,7 @@ def index(request):
 def imprint(request):
     return render(request, 'imprint.html')
 
-
+@require_http_methods(['POST'])
 def analyze_lyrics(request):
     formatted_topics = []
 
@@ -124,7 +127,7 @@ def analyze_lyrics(request):
         'original_lyrics': lyrics
     })
 
-
+@require_http_methods(['POST'])
 def deep_analyze_sentiment(request):
         if request.method == 'POST':
             lyrics = request.POST.get('lyrics', '')
@@ -152,6 +155,7 @@ def deep_analyze_sentiment(request):
         })
         
 #fast or regular
+@require_http_methods(['POST'])
 def analyze_sentiment(request):
     lyrics = request.POST.get('lyrics', '')
     sentiment_result = None
@@ -192,7 +196,28 @@ def search(request):
 
             if response.status_code == 200:
                 data = response.json()
-                context["results"] = data.get("data", [])
+                # context["results"] = data.get("data", [])
+                results = data.get("data", [])
+                enriched_results = []
+                for result in results:
+                    title = result.get("title", "").strip()
+                    artist = result.get("artist", {}).get("name", "").strip()
+
+                    # Default: not liked
+                    liked = False
+
+                    if request.user.is_authenticated:
+                        try:
+                            song = Song.objects.get(title=title, artist=artist)
+                            liked = request.user in song.liked.all()
+                        except Song.DoesNotExist:
+                            pass  # not in database, stay unliked
+
+                    # Attach flag to the result
+                    result["liked"] = liked
+                    enriched_results.append(result)
+
+                context["results"] = enriched_results
             else:
                 context["error"] = "Fehler beim Abrufen der Songvorschläge."
 

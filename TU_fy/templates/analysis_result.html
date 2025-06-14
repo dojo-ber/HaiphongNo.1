@@ -1,27 +1,23 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
+<h2>Themenanalyse</h2>
 
-{% block content %}
-  <h2>Themenanalyse</h2>
-
-  <h5 class="card-title text-info">Originaltext</h5>
-  <div class="card mb-4">
-    <div class="card-body">
-      <pre>{{ original_lyrics }}</pre>
-    </div>
+<h5 class="card-title text-info">Originaltext</h5>
+<div class="card mb-4">
+  <div class="card-body">
+    <pre>{{ original_lyrics }}</pre>
   </div>
+</div>
 
-  <h5 class="card-title text-info">Erkannte Themen</h5>
-  {% if topics %}
-    <ul class="list-group">
-      {% for topic in topics %}
-        <li class="list-group-item">
-          <strong>{{ topic.name }}</strong><br />
-          <small class="text-muted">Begriffe:</small> {{ topic.words|join:", " }}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Keine Themen erkannt.</p>
-  {% endif %}
-{% endblock %}
-
+<h5 class="card-title text-info">Erkannte Themen</h5>
+{% if topics %}
+<ul class="list-group">
+  {% for topic in topics %}
+  <li class="list-group-item">
+    <strong>{{ topic.name }}</strong><br />
+    <small class="text-muted">Begriffe:</small> {{ topic.words|join:", " }}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Keine Themen erkannt.</p>
+{% endif %} {% endblock %}

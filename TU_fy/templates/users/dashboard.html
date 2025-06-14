@@ -17,9 +17,23 @@
       </div>
     </div>
   </div>
+  <div class="mt-4 row justify-content-center g-4">
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm border-info">
+        <div class="card-body">
+          <h5 class="card-title text-info">🎵 Songs</h5>
+          <p class="card-text text-white">
+            Suche, Analysiere Songs und füge sie zu deiner Playlist hinzu.
+          </p>
+          <a href="{% url 'lyrics_search' %}" class="btn btn-outline-info">
+            Zur Hautpseite.
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="mt-5 d-flex justify-content-center gap-3 flex-wrap">
-    <a href="{% url 'index' %}" class="btn btn-primary">Zur Hauptseite</a>
     <form action="{% url 'logout' %}" method="post" class="d-inline">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">Logout</button>

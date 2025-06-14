@@ -52,12 +52,32 @@
 
         <div class="btn-group">
           <!-- Like Button für später -->
+          {% comment %}
           <button
             class="btn btn-sm btn-outline-danger"
             title="Zu Favoriten hinzufügen"
           >
             <i class="bi bi-heart"></i>
           </button>
+          {% endcomment %}
+          <form action="{% url 'toggle_like' %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <input
+              type="hidden"
+              name="artist"
+              value="{{ result.artist.name }}"
+            />
+            <input type="hidden" name="title" value="{{ result.title }}" />
+            <button
+              type="submit"
+              class="btn btn-sm {% if result.liked %}btn-danger{% else %}btn-outline-danger{% endif %}"
+              title="Zu Favoriten hinzufügen oder entfernen"
+            >
+              <i
+                class="bi {% if result.liked %}bi-heart-fill{% else %}bi-heart{% endif %}"
+              ></i>
+            </button>
+          </form>
 
           <!-- Songtext Button -->
           <form action="{% url 'index' %}" method="post" class="d-inline ms-1">

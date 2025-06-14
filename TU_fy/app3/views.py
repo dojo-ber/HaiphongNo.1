@@ -1,12 +1,12 @@
 from django.urls import reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.views import generic
 from .models import Playlist, PlaylistSong, Song
 from .forms import PlaylistForm
-from django.core.exceptions import PermissionDenied
     
     
 class PlaylistOverview(LoginRequiredMixin, generic.ListView):
@@ -22,7 +22,7 @@ class PlaylistOverview(LoginRequiredMixin, generic.ListView):
                 name="Meine Favoriten",
                 is_default=True
             )
-        return Playlist.objects.filter(creator=self.request.user).order_by('-created_at')
+        return Playlist.objects.filter(creator=self.request.user).order_by('-is_default','-created_at')
     
 @login_required
 def playlist_detail(request, pk):
@@ -92,4 +92,39 @@ class PlaylistDeleteView(LoginRequiredMixin, generic.DeleteView):
         messages.success(self.request, "The playlist was deleted successfully.")
         return super().form_valid(form)
     
-    
+@require_http_methods(['POST'])
+@login_required
+def toggle_like_song(request):
+    artist_name = request.POST.get("artist")
+    song_title = request.POST.get("title")
+
+    if not artist_name or not song_title:
+        return redirect("index")  # or show a message
+
+    # 1. Get or create the Song
+    song, created = Song.objects.get_or_create(
+        title=song_title.strip(),
+        artist=artist_name.strip()
+    )
+
+    # 2. Get or create the user's "Meine Favoriten" playlist
+    favorites, _ = Playlist.objects.get_or_create(
+        creator=request.user,
+        is_default=True,
+        name="Meine Favoriten"
+    )
+
+    # 3. Check if the song is already in that playlist and liked
+    is_liked = request.user in song.liked.all()
+    is_in_playlist = PlaylistSong.objects.filter(playlist=favorites, song=song).exists()
+
+    if is_liked and is_in_playlist:
+        # UNLIKE and REMOVE from playlist
+        song.liked.remove(request.user)
+        PlaylistSong.objects.filter(playlist=favorites, song=song).delete()
+    else:
+        # LIKE and ADD to playlist
+        song.liked.add(request.user)
+        PlaylistSong.objects.get_or_create(playlist=favorites, song=song)
+
+    return redirect('lyrics_search')
