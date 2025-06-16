@@ -1,14 +1,18 @@
 {% extends "base.html" %}
+
+
 {% block content %}
   <h2 style="color:#00ffe1;">🎭 Deep-Stimmungsanalyse</h2>
   <div class="card p-3">
     <h5 class="card-title" style="color:#00ffe1;">Stimmung des Songs:</h5>
-    <p style="font-size: 2rem;">{{ emoji }} {{ sentiment }}</p>
+    <p style="font-size: 2rem ;color: white;">{{ emoji }} {{ sentiment }}</p>
+
+
 
     <h6 style="color:#00ffe1;">Top Emotionen</h6>
     <ul>
       {% for e in scores %}
-        <li>{{ e.label|capfirst }} – {{ e.score|floatformat:2 }}</li>
+        <li style="color: white;">{{ e.label|capfirst }} – {{ e.score|floatformat:2 }}</li>
       {% endfor %}
     </ul>
 

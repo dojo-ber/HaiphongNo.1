@@ -11,6 +11,7 @@ urlpatterns = [
     path('analyze-sentiment/', views.analyze_sentiment, name='analyze_sentiment'),
     path('analyze/deep_sentiment/', views.deep_analyze_sentiment, name='deep_analyze_sentiment'),
     path('search/', views.search, name='lyrics_search'), #URLs für die Songsuche
-
+    path('record/',views.record_audio_page, name='record_audio_page'),  # zeigt das HTML
+    path('record/recognize_audio/', views.recognize_audio, name='recognize_audio') # API-Endpunkt
 
 ]

@@ -33,3 +33,43 @@ To Use GoEmo:
 pip install transformers torch
 from transformers import pipeline
 
+python manage.py makemigrations
+python manage.py migrate
+
+KEY: LBUHnC6eBt
+
+--------------------------------
+Bzgl. der Musikanalyse:
+
+pMight need to install:
+pip install imageio[ffmpeg]
+
+AcoustID
+Was ist das?
+AcoustID ist ein Service und API für Audio-Fingerprinting.
+Es erlaubt dir, einen Fingerabdruck (Fingerprint) einer Audiodatei zu erstellen und dann über den AcoustID-Webdienst das Lied bzw. den Track zu identifizieren (also welcher Song das ist).
+
+Wofür wird es verwendet?
+Musik-Identifikation, z.B. um Titel, Interpret, Album usw. zu erkennen.
+In Python nutzt man dafür oft die Bibliothek pyacoustid.
+
+Beispiel:
+Du konvertierst eine Audioaufnahme in einen Fingerprint und sendest diesen an AcoustID, um die Metadaten des Songs zu erhalten.
+
+Was ist FFmpeg?
+FFmpeg ist ein mächtiges, freies Kommandozeilen-Werkzeug (und ein Software-Framework) zum Verarbeiten, Konvertieren und Streamen von Multimedia-Dateien — also Audio, Video und Bilder.
+
+
+
+Kurz gesagt:
+AcoustID = Audio-Fingerprinting / Musik-Erkennung
+
+imageio = Bild- und Videoverarbeitung (könnt ihr ignorieren, auch die Errors zudem)
+
+ffmpeg = Video-Konverten
+
+
+
+
+
+

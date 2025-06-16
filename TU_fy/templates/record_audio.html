@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .recorder-container {
+    max-width: 600px;
+    margin: 80px auto;
+    text-align: center;
+    background-color: #1e1e2f;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 255, 225, 0.2);
+    color: #f8f9fa;
+  }
+  #recordBtn, #confirmBtn {
+    font-size: 1.2rem;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 50px;
+    margin: 10px 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  #recordBtn {
+    background-color: #00ffe1;
+    color: #000;
+  }
+  #recordBtn:hover {
+    background-color: #00cbb5;
+  }
+  #recordBtn.recording {
+    background-color: #ff4c4c;
+    color: #fff;
+  }
+  #confirmBtn {
+    background-color: #28a745;
+    color: #fff;
+    display: none;
+  }
+  #confirmBtn:hover {
+    background-color: #218838;
+  }
+  #confirmBtn.processing {
+    background-color: #6c757d;
+  }
+  #result {
+    margin-top: 20px;
+    min-height: 50px;
+  }
+  #result h3 {
+    color: #00ffe1;
+  }
+  audio {
+    margin: 20px 0;
+    width: 100%;
+  }
+  .back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #00ffe1;
+    text-decoration: none;
+  }
+</style>
+
+<div class="recorder-container">
+  <h2>🎙️ Mikrofonaufnahme & Song-Erkennung</h2>
+
+  <div class="button-group">
+    <button id="recordBtn">🔴 Aufnahme starten</button>
+    <button id="confirmBtn">✅ Bestätigen & Erkennen</button>
+  </div>
+
+  <audio id="player" controls></audio>
+  <div id="result"></div>
+
+  <a class="back-link" href="{% url 'start' %}">⬅️ Zurück zur Startseite</a>
+</div>
+
+    <script>
+      const recognizeAudioURL = "{% url 'recognize_audio' %}";
+      console.log("Recognize URL:", recognizeAudioURL);
+    </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  let mediaRecorder;
+  let audioBlob = null;
+  const chunks = [];
+
+  const recordBtn = document.getElementById('recordBtn');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const player = document.getElementById('player');
+  const resultDiv = document.getElementById('result');
+
+  recordBtn.addEventListener('click', async () => {
+    try {
+      if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            sampleRate: 44100,
+            channelCount: 1,
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false
+          }
+        });
+
+        const options = {
+          audioBitsPerSecond: 128000,
+          mimeType: 'audio/webm;codecs=opus'
+        };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          delete options.mimeType;
+        }
+
+        mediaRecorder = new MediaRecorder(stream, options);
+
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) {
+            chunks.push(e.data);
+            console.log(`Datenchunk: ${e.data.size} bytes`);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          audioBlob = new Blob(chunks, { type: mediaRecorder.mimeType });
+          console.log("Fertige Aufnahme:", audioBlob.size, "bytes", "Typ:", audioBlob.type);
+
+          player.src = URL.createObjectURL(audioBlob);
+          confirmBtn.style.display = 'inline-block';
+          recordBtn.classList.remove('recording');
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start(500);
+        console.log("Aufnahme gestartet mit MIME-Type:", mediaRecorder.mimeType);
+        recordBtn.textContent = '🛑 Aufnahme stoppen';
+        recordBtn.classList.add('recording');
+        resultDiv.innerHTML = '';
+      } else {
+        mediaRecorder.stop();
+        console.log("Aufnahme gestoppt");
+        recordBtn.textContent = '🔴 Aufnahme starten';
+      }
+    } catch (error) {
+      console.error("Fehler:", error);
+      resultDiv.innerHTML = `<p style="color:red">❌ Fehler: ${error.message}</p>`;
+    }
+  });
+
+  confirmBtn.addEventListener('click', async () => {
+    if (!audioBlob) {
+      alert("Bitte zuerst eine Aufnahme erstellen.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'aufnahme.webm');
+
+    confirmBtn.disabled = true;
+    confirmBtn.classList.add('processing');
+    confirmBtn.textContent = "⏳ Wird verarbeitet...";
+    resultDiv.innerHTML = '';
+
+    try {
+
+      const response = await fetch('record/recognize_audio/', {
+        method: 'POST',
+        body: formData
+      });
+      console.log("This is response: " +response);
+      if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+      const data = await response.json();
+
+      console.log("artist: " + data.artist);
+      if (data.artist && data.title) {
+        resultDiv.innerHTML = `<h3>🎶 ${data.artist} – ${data.title}</h3>`;
+      } else {
+        resultDiv.innerHTML = `<p>❌ ${data.error || 'Keine Übereinstimmung gefunden'}</p>`;
+      }
+    } catch (err) {
+      console.error("Serverfehler:", err);
+      resultDiv.innerHTML = `<p style="color:red">❌ Serverfehler: ${err.message}</p>`;
+    }
+
+    confirmBtn.disabled = false;
+    confirmBtn.classList.remove('processing');
+    confirmBtn.textContent = "✅ Bestätigen & Erkennen";
+  });
+});
+</script>
+{% endblock %}
