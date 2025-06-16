@@ -22,11 +22,10 @@ class Playlist(models.Model):
 class Song(models.Model):
     title = models.CharField(max_length=160)
     artist = models.CharField(max_length=160)
-    album = models.CharField(max_length=160, null=True)
-    #n zu m Beziehung zu User, da keine weitere Attribute, reicht ManyToManyField
+    album = models.CharField(max_length=160, null=True, blank=True)
+    lyrics = models.TextField(null=True, blank=True)  # NEU: Lyrics-Feld hinzugefügt
     liked = models.ManyToManyField(User, related_name='liked_songs', blank=True)
     
-    #title und artist sind keine Primäreschlüssel, sollten aber nur einmal in Playlist vorkommen
     class Meta:
         unique_together = ('title', 'artist')
 
