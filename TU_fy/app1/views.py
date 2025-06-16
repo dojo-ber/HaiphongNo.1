@@ -8,7 +8,7 @@ from transformers import pipeline
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from django.views.decorators.http import require_http_methods
 from app3.models import Song
-
+from urllib.parse import quote
 
 
 # Modell wird einmal global geladen (Performance!)
@@ -37,8 +37,46 @@ def start(request):
 from django.shortcuts import render
 import requests
 from django.contrib.auth.decorators import login_required
+#Hilfsfunktionen index
+def get_cached_lyrics(artist, title):
+    try:
+        return Song.objects.get(
+            artist__iexact=artist.strip(),
+            title__iexact=title.strip()
+        )
+    except Song.DoesNotExist:
+        return None
 
+def fetch_from_api(artist, title):
+    try:
+        # Verwenden Sie requests.utils.quote statt urllib.parse.quote
+        from requests.utils import quote
+        artist_encoded = quote(artist)
+        title_encoded = quote(title)
+        
+        api_url = f"https://api.lyrics.ovh/v1/{artist_encoded}/{title_encoded}"
+        response = requests.get(api_url, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('lyrics', 'Keine Lyrics gefunden.'), None
+        else:
+            return None, f"Fehler {response.status_code}: Songtext nicht gefunden"
+    
+    except requests.exceptions.RequestException as e:
+        return None, f"API-Fehler: {str(e)}"
 
+def cache_lyrics(artist, title, lyrics, error):
+    if not error and lyrics:
+        artist_clean = artist.strip()
+        title_clean = title.strip()
+        
+        Song.objects.update_or_create(
+            artist=artist_clean,
+            title=title_clean,
+            defaults={'lyrics': lyrics}
+        )
+# Hauptfunktion
 def index(request):
     lyrics = None
     error = None
@@ -53,16 +91,17 @@ def index(request):
         title = request.GET.get('title')
     
     if artist and title:
-        # URL bisschen überarbeitet
-        from urllib.parse import quote
-        api_url = f"https://api.lyrics.ovh/v1/{quote(artist)}/{quote(title)}"
-        response = requests.get(api_url)
-
-        if response.status_code == 200:
-            data = response.json()
-            lyrics = data.get('lyrics', 'Keine Lyrics gefunden.')
+        # Versuche Lyrics aus der Datenbank zu holen
+        song = get_cached_lyrics(artist, title)
+        
+        if song and song.lyrics:
+            lyrics = song.lyrics
         else:
-            error = f"Fehler {response.status_code}: Songtext nicht gefunden"
+            # Lyrics nicht in DB - API-Abfrage durchführen
+            lyrics, error = fetch_from_api(artist, title)
+            
+            # Ergebnis in Datenbank speichern (nur wenn erfolgreich)
+            cache_lyrics(artist, title, lyrics, error)
     
     return render(request, 'index.html', {
         'lyrics': lyrics,
