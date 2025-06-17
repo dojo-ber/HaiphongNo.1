@@ -1,51 +1,105 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %}{% block content %}
 <div class="container my-5">
   <h1 class="text-center text-info mb-4">🎵 Playlist bearbeiten</h1>
 
   <!-- Messages -->
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
+  {% if messages %} {% for message in messages %}
+  <div
+    class="alert alert-{{ message.tags }} alert-dismissible fade show"
+    role="alert"
+  >
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %} {% endif %}
 
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
       <div class="card shadow-sm border-info">
         <div class="card-body">
+          <!-- Hier das Formular mit POST und enctype -->
           <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-            
+
+            <!-- Playlist Name -->
+            <div class="mb-3">
+              <label for="id_name" class="form-label">Name der Playlist</label>
+              <input
+                type="text"
+                class="form-control"
+                id="id_name"
+                name="name"
+                value="{{ playlist.name }}"
+                placeholder="Titel ändern"
+                ,
+                required
+              />
+            </div>
+
             <!-- Aktuelles Bild anzeigen -->
             {% if playlist.image %}
-              <div class="text-center mb-4">
-                <img src="{{ playlist.image.url }}" class="album-cover rounded mb-2" style="max-height: 150px;">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="image-clear" id="image-clear">
-                  <label class="form-check-label text-muted" for="image-clear">
-                    Aktuelles Bild entfernen
-                  </label>
-                </div>
+            <div class="text-center mb-4">
+              <img
+                src="{{ playlist.image.url }}"
+                class="album-cover rounded mb-2"
+                style="max-height: 150px"
+              />
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="image-clear"
+                  id="image-clear"
+                />
+                <label class="form-check-label text-white" for="image-clear">
+                  Aktuelles Bild entfernen
+                </label>
               </div>
+            </div>
             {% else %}
-              <!-- Lorem Picsum als Standardbild -->
-              <div class="text-center mb-4">
-                <img src="https://picsum.photos/300/300?random={{ playlist.id }}" 
-                     class="album-cover rounded mb-2" 
-                     style="max-height: 150px;"
-                     alt="Zufälliges Coverbild">
-              </div>
+            <!-- Lorem Picsum als Standardbild -->
+            <div class="text-center mb-4">
+              <img
+                src="https://picsum.photos/300/300?random={{ playlist.id }}"
+                class="album-cover rounded mb-2"
+                style="max-height: 150px"
+                alt="Zufälliges Coverbild"
+              />
+            </div>
             {% endif %}
-            
-            <!-- Rest unverändert -->
+
+            <!-- Bild hochladen -->
+            <div class="mb-3">
+              <label for="id_image" class="form-label text-white"
+                >Neues Bild hochladen</label
+              >
+              <input
+                type="file"
+                class="form-control"
+                id="id_image"
+                name="image"
+                accept="image/*"
+              />
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-info">Speichern</button>
+            </div>
           </form>
         </div>
       </div>
     </div>
+  </div>
+  <div class="text-center mt-4">
+    <a href="{% url 'overview_playlist' %}" class="btn btn-outline-light">
+      ← Zurück zur Übersicht
+    </a>
   </div>
 </div>
 {% endblock %}

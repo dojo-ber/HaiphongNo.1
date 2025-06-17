@@ -28,12 +28,20 @@ class PlaylistOverview(LoginRequiredMixin, generic.ListView):
 @login_required
 def playlist_detail(request, pk):
     playlist = get_object_or_404(Playlist, pk=pk)
-    songs = PlaylistSong.objects.filter(playlist=playlist).order_by('added_at')
+    songs = PlaylistSong.objects.filter(playlist=playlist).select_related("song").order_by('added_at')
+
     if playlist.creator != request.user:
         return redirect('index')
+
+    # Enrich with like state
+    enriched_songs = []
+    for item in songs:
+        item.liked = request.user in item.song.liked.all()
+        enriched_songs.append(item)
+
     return render(request, 'playlist/detail_playlist.html', {
         'playlist': playlist,
-        'songs': songs,
+        'songs': enriched_songs,
     })
 
 def dashboard(request):
@@ -53,7 +61,7 @@ class PlaylistCreateView(LoginRequiredMixin, generic.CreateView):
     success_url = reverse_lazy('overview_playlist')
 
     def form_valid(self, form):
-        messages.success(self.request, "The playlist was created successfully.")
+        messages.success(self.request, "Die Playlist wurde erfolgreich erstellt.")
         form.instance.creator = self.request.user
         return super().form_valid(form)
     
@@ -72,7 +80,7 @@ class PlaylistUpdateView(LoginRequiredMixin, generic.UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        messages.success(self.request, "The playlist was edited successfully.")
+        messages.success(self.request, "Die Playlist wurde erflogreich bearbeitet.")
         return super().form_valid(form)
 
 
@@ -90,7 +98,7 @@ class PlaylistDeleteView(LoginRequiredMixin, generic.DeleteView):
         return super().dispatch(request, *args, **kwargs)
     
     def form_valid(self, form):
-        messages.success(self.request, "The playlist was deleted successfully.")
+        messages.success(self.request, "Die Playlist wurde erfolgreich gelöscht.")
         return super().form_valid(form)
     
 @require_http_methods(['POST'])
@@ -128,4 +136,4 @@ def toggle_like_song(request):
         song.liked.add(request.user)
         PlaylistSong.objects.get_or_create(playlist=favorites, song=song)
 
-    return redirect('lyrics_search')
+    return redirect('overview_playlist')

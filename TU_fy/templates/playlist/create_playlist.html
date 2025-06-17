@@ -1,33 +1,78 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container">
+{% extends "base.html" %} {% block content %}
+<div class="container my-5">
   <h1 class="text-center text-info mb-4">🎧 Playlist erstellen</h1>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-success">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
+  {% if messages %} {% for message in messages %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %} {% endif %}
 
-  <form action="{% url 'create_playlist' %}" method="post" enctype="multipart/form-data" class="bg-dark p-4 rounded shadow">
-    {% csrf_token %}
-    
-    <div class="mb-3">
-      <label for="{{ form.name.id_for_label }}" class="form-label text-white">Playlist Name</label>
-      {{ form.name }}
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-sm border-info bg-dark">
+        <div class="card-body">
+          <form
+            action="{% url 'create_playlist' %}"
+            method="post"
+            enctype="multipart/form-data"
+            novalidate
+          >
+            {% csrf_token %}
+
+            <!-- Playlist Name -->
+            <div class="mb-3">
+              <label for="id_name" class="form-label text-white"
+                >Name der Playlist</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="id_name"
+                name="name"
+                required
+                placeholder="Playlist Name eingeben"
+              />
+            </div>
+
+            <!-- Cover Bild -->
+            <div class="mb-3">
+              <label for="id_image" class="form-label text-white"
+                >Cover Bild</label
+              >
+              <input
+                type="file"
+                class="form-control"
+                id="id_image"
+                name="image"
+                accept="image/*"
+              />
+              <div class="form-text text-muted">
+                Laden Sie ein quadratisches Bild hoch (empfohlen: 500x500px)
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-info">
+                Playlist erstellen
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    
-    <div class="mb-3">
-      <label for="{{ form.image.id_for_label }}" class="form-label text-white">Cover Bild</label>
-      {{ form.image }}
-      <div class="form-text text-muted">Laden Sie ein quadratisches Bild hoch (empfohlen: 500x500px)</div>
-    </div>
-    
-    <div class="text-end">
-      <button class="btn btn-primary mt-3" type="submit">
-        🆕 Playlist erstellen
-      </button>
-    </div>
-  </form>
+  </div>
+  <div class="text-center mt-4">
+    <a href="{% url 'overview_playlist' %}" class="btn btn-outline-light">
+      ← Zurück zur Übersicht
+    </a>
+  </div>
 </div>
 {% endblock %}

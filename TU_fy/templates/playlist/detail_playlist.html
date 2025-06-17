@@ -1,23 +1,23 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="container">
   <div class="text-center mb-4">
-    <h1 class="text-info">
-      {{ playlist.name }}
-      {% if playlist.is_default %}
-        <span class="badge bg-success">Standard-Playlist</span>
-      {% endif %}
-    </h1>
-    
+    <h1 class="text-info">{{ playlist.name }}</h1>
+
     <!-- Album Cover -->
-    <div class="ratio ratio-1x1 mx-auto" style="max-width: 300px;">
+    <div class="ratio ratio-1x1 mx-auto" style="max-width: 300px">
       {% if playlist.image %}
-        <img src="{{ playlist.image.url }}" class="img-fluid rounded object-fit-cover" alt="{{ playlist.name }}">
+      <img
+        src="{{ playlist.image.url }}"
+        class="img-fluid rounded object-fit-cover"
+        alt="{{ playlist.name }}"
+      />
       {% else %}
-        <!-- Lorem Picsum als Standardbild -->
-        <img src="https://picsum.photos/500/500?random={{ playlist.id }}" 
-             class="img-fluid rounded object-fit-cover" 
-             alt="Zufälliges Coverbild">
+      <!-- Lorem Picsum als Standardbild -->
+      <img
+        src="https://picsum.photos/500/500?random={{ playlist.id }}"
+        class="img-fluid rounded object-fit-cover"
+        alt="Zufälliges Coverbild"
+      />
       {% endif %}
     </div>
   </div>
@@ -30,9 +30,28 @@
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <strong>{{ item.song.title }}</strong>
-          <div class="text-muted">von {{ item.song.artist }}</div>
+          <div class="text-light">von {{ item.song.artist }}</div>
         </div>
-        <span class="badge bg-info text-dark">{{ item.added_at|date:"d.m.Y" }}</span>
+        <div class="d-flex align-items-center gap-2">
+          <form
+            action="{% url 'toggle_like' %}"
+            method="post"
+            class="d-inline m-0 p-0"
+          >
+            {% csrf_token %}
+            <input type="hidden" name="artist" value="{{ item.song.artist }}" />
+            <input type="hidden" name="title" value="{{ item.song.title }}" />
+            <button
+              type="submit"
+              class="btn btn-sm btn-danger"
+              title="Zu Favoriten hinzufügen oder entfernen"
+            >
+              <i
+                class="bi {% if item.liked %}bi-heart-fill{% else %}bi-heart{% endif %}"
+              ></i>
+            </button>
+          </form>
+        </div>
       </div>
     </li>
     {% endfor %}
@@ -44,6 +63,9 @@
   {% endif %}
 
   <div class="text-center mt-4">
+    <a href="{% url 'lyrics_search' %}" class="btn btn-outline-light">
+      Song-Suche
+    </a>
     <a href="{% url 'overview_playlist' %}" class="btn btn-outline-light">
       ← Zurück zur Übersicht
     </a>

@@ -15,7 +15,6 @@ class Playlist(models.Model):
     upload_to='playlist_images/',
     blank=True,
     null=True,
-    default='playlist_images/default_cover.jpg'
 )
     def __str__(self):
         return self.name
