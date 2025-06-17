@@ -39,8 +39,8 @@ EMOJI_MAP = {
 
 # Send request func
 def start(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
+    # if request.user.is_authenticated:
+    #     return redirect('dashboard')
     return render(request, 'startingscreen.html')
 
 
