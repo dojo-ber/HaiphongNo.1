@@ -27,8 +27,8 @@
     {% csrf_token %} {{ form.as_p }}
     <button class="btn btn-primary mt-2" type="submit">Registrieren</button>
   </form>
-  <a href="{% url 'start' %}" class="btn btn-secondary btn-back mt-2"
-    >Zurück zur Startseite</a
-  >
+  <a href="{% url 'start' %}" class="btn btn-outline-light mt-4">
+    ← Zurück zur Startseite
+  </a>
 </div>
 {% endblock %}
