@@ -51,15 +51,27 @@
         </div>
 
         <div class="btn-group">
-          <!-- Like Button für später -->
-          {% comment %}
-          <button
-            class="btn btn-sm btn-outline-danger"
-            title="Zu Favoriten hinzufügen"
+          <!-- Zur Playlist hinzufügen Button -->
+          <form
+            action="{% url 'add_to_playlist' %}"
+            method="post"
+            class="d-inline ms-1"
           >
-            <i class="bi bi-heart"></i>
-          </button>
-          {% endcomment %}
+            {% csrf_token %}
+            <input type="hidden" name="title" value="{{ result.title }}" />
+            <input
+              type="hidden"
+              name="artist"
+              value="{{ result.artist.name }}"
+            />
+            <button
+              type="submit"
+              class="btn btn-sm btn-outline-success"
+              title="Zur Playlist hinzufügen"
+            >
+              <i class="bi bi-plus-circle"></i> Playlist
+            </button>
+          </form>
           <form action="{% url 'toggle_like' %}" method="post" class="d-inline">
             {% csrf_token %}
             <input

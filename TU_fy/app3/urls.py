@@ -10,7 +10,8 @@ urlpatterns = [
     path('delete/<int:pk>/', views.PlaylistDeleteView.as_view(), name='delete_playlist'),
     path('update/<int:pk>/', views.PlaylistUpdateView.as_view(), name='update_playlist'),
     path('toggle-like/', views.toggle_like_song, name='toggle_like'),
-
+    path("add/", views.add_to_playlist, name="add_to_playlist"),
+    path("add/confirm/", views.confirm_add_to_playlist, name="confirm_add_to_playlist"),
 ]
 
 

@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.views import generic
 from .models import Playlist, PlaylistSong, Song
 from .forms import PlaylistForm
-
+import requests
     
     
 class PlaylistOverview(LoginRequiredMixin, generic.ListView):
@@ -137,3 +137,47 @@ def toggle_like_song(request):
         PlaylistSong.objects.get_or_create(playlist=favorites, song=song)
 
     return redirect('overview_playlist')
+
+@require_http_methods(['POST'])
+@login_required
+def add_to_playlist(request):
+    if request.method == "POST":
+        artist = request.POST.get("artist", "").strip()
+        title = request.POST.get("title", "").strip()
+
+        if not artist or not title:
+            messages.error(request, "Ungültige Songdaten.")
+            return redirect("index")
+
+        request.session["pending_song"] = {"artist": artist, "title": title}
+
+        # Nur eigene Playlists anzeigen
+        playlists = Playlist.objects.filter(creator=request.user)
+        return render(request, "select_playlist.html", {"playlists": playlists, "artist": artist, "title": title})
+    return redirect("index")
+
+
+@login_required
+def confirm_add_to_playlist(request):
+    if request.method == "POST":
+        playlist_id = request.POST.get("playlist_id")
+        data = request.session.get("pending_song")
+
+        if not data or not playlist_id:
+            messages.error(request, "Fehlende Informationen.")
+            return redirect("overview_playlist")
+
+        title = data["title"]
+        artist = data["artist"]
+
+        # Song speichern oder holen
+        song, created = Song.objects.get_or_create(title=title, artist=artist)
+        if created:
+            song.save()
+
+        playlist = Playlist.objects.get(id=playlist_id, creator=request.user)
+        from .models import PlaylistSong
+        PlaylistSong.objects.get_or_create(playlist=playlist, song=song)
+
+        messages.success(request, f"✅ Song '{title}' wurde zur Playlist '{playlist.name}' hinzugefügt.")
+        return redirect("overview_playlist")
