@@ -7,7 +7,9 @@ from django.contrib import messages
 from django.views import generic
 from .models import Playlist, PlaylistSong, Song
 from .forms import PlaylistForm
+from app1.views import get_or_create_full_song
 import requests
+    
     
     
 class PlaylistOverview(LoginRequiredMixin, generic.ListView):
@@ -101,6 +103,7 @@ class PlaylistDeleteView(LoginRequiredMixin, generic.DeleteView):
         messages.success(self.request, "Die Playlist wurde erfolgreich gelöscht.")
         return super().form_valid(form)
     
+    
 @require_http_methods(['POST'])
 @login_required
 def toggle_like_song(request):
@@ -108,35 +111,29 @@ def toggle_like_song(request):
     song_title = request.POST.get("title")
 
     if not artist_name or not song_title:
-        return redirect("index")  # or show a message
+        return redirect("index")
 
-    # 1. Get or create the Song
-    song, created = Song.objects.get_or_create(
-        title=song_title.strip(),
-        artist=artist_name.strip()
-    )
+    song = get_or_create_full_song(artist_name, song_title)
 
-    # 2. Get or create the user's "Meine Favoriten" playlist
     favorites, _ = Playlist.objects.get_or_create(
         creator=request.user,
         is_default=True,
         name="Meine Favoriten"
     )
 
-    # 3. Check if the song is already in that playlist and liked
     is_liked = request.user in song.liked.all()
     is_in_playlist = PlaylistSong.objects.filter(playlist=favorites, song=song).exists()
 
     if is_liked and is_in_playlist:
-        # UNLIKE and REMOVE from playlist
+        # Unlike + Entfernen aus Favoriten-Playlist
         song.liked.remove(request.user)
         PlaylistSong.objects.filter(playlist=favorites, song=song).delete()
     else:
-        # LIKE and ADD to playlist
         song.liked.add(request.user)
         PlaylistSong.objects.get_or_create(playlist=favorites, song=song)
 
     return redirect('overview_playlist')
+
 
 @require_http_methods(['POST'])
 @login_required
@@ -170,14 +167,12 @@ def confirm_add_to_playlist(request):
         title = data["title"]
         artist = data["artist"]
 
-        # Song speichern oder holen
-        song, created = Song.objects.get_or_create(title=title, artist=artist)
-        if created:
-            song.save()
+        # Song inkl. Lyrics holen/erstellen
+        song = get_or_create_full_song(artist, title)
 
         playlist = Playlist.objects.get(id=playlist_id, creator=request.user)
-        from .models import PlaylistSong
         PlaylistSong.objects.get_or_create(playlist=playlist, song=song)
 
         messages.success(request, f"✅ Song '{title}' wurde zur Playlist '{playlist.name}' hinzugefügt.")
         return redirect("overview_playlist")
+    

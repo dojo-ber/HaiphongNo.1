@@ -113,7 +113,7 @@
       {% endfor %}
     </ul>
   </div>
-  {% endif %}
+  {% endif %} {% if user.is_authenticated%}
   <div class="text-center mt-4">
     <a href="{% url 'overview_playlist' %}" class="btn btn-outline-light">
       Playlist-Übersicht
@@ -123,4 +123,12 @@
     </a>
   </div>
 </div>
-{% endblock %}
+
+{% else %}
+<div class="text-center mt-4">
+    <a href="{% url 'start' %}" class="btn btn-outline-light">
+      ← Zurück zur Startseite
+    </a>
+  </div>
+</div>
+{% endif %} {% endblock %}

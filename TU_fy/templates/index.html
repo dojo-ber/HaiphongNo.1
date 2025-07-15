@@ -1,51 +1,48 @@
-{% extends "base.html" %}
-{% block title %}🎵 Liedtext-Suche{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}🎵 Liedtext-Suche{% endblock %}
+{%block content %}
 <div class="container mt-4">
   {% if not lyrics %}
-    <h1 class="mb-4">🎵 Liedtext-Suche</h1>
-    <form method="GET" action="{% url 'index' %}" class="row g-3">
-      <div class="col-md-6">
-        <input
-          type="text"
-          name="artist"
-          class="form-control"
-          placeholder="🎤 Künstlername eingeben..."
-          value="{{ artist|default:'' }}"
-          required
-        />
-      </div>
-      <div class="col-md-6">
-        <input
-          type="text"
-          name="title"
-          class="form-control"
-          placeholder="🎵 Songtitel eingeben..."
-          value="{{ title|default:'' }}"
-          required
-        />
-      </div>
-      <div class="col-12">
-        <button type="submit" class="btn btn-primary w-100">
-          Songtext analysieren
-        </button>
-      </div>
-    </form>
+  <h1 class="mb-4">🎵 Liedtext-Suche</h1>
+  <form method="GET" action="{% url 'index' %}" class="row g-3">
+    <div class="col-md-6">
+      <input
+        type="text"
+        name="artist"
+        class="form-control"
+        placeholder="🎤 Künstlername eingeben..."
+        value="{{ artist|default:'' }}"
+        required
+      />
+    </div>
+    <div class="col-md-6">
+      <input
+        type="text"
+        name="title"
+        class="form-control"
+        placeholder="🎵 Songtitel eingeben..."
+        value="{{ title|default:'' }}"
+        required
+      />
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary w-100">
+        Songtext analysieren
+      </button>
+    </div>
+  </form>
   {% endif %}
 
   <!-- Fehleranzeige -->
   {% if error %}
   <div class="text-center alert alert-danger mt-4">{{ error }}</div>
-  {% endif %} 
-  
-  {% if not lyrics %}
+  {% endif %} {% if not lyrics %}
   <div class="text-center mt-2">
     <a href="{% url 'dashboard' %}" class="btn btn-outline-light mt-4">
       ← Zurück zum Dashboard
     </a>
   </div>
   {% endif %}
-  
+
   <!-- Lyrics -->
   {% if lyrics %}
   <h3>{{ artist }} - {{ title }}</h3>
@@ -78,6 +75,9 @@
       🎭 Deep-Stimmungsanalyse
     </button>
   </form>
+  <a href="{% url 'lyrics_search' %}" class="btn btn-outline-light mt-4">
+    ← Zurück zur Suche
+  </a>
   <a href="{% url 'dashboard' %}" class="btn btn-outline-light mt-4">
     ← Zurück zum Dashboard
   </a>

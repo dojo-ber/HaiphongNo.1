@@ -80,16 +80,37 @@ def fetch_from_api(artist, title):
 
 
 def cache_lyrics(artist, title, lyrics, error):
-    if not error and lyrics:
-        artist_clean = artist.strip()
-        title_clean = title.strip()
+    artist_clean = artist.strip()
+    title_clean = title.strip()
 
-        Song.objects.update_or_create(
-            artist=artist_clean,
-            title=title_clean,
-            defaults={'lyrics': lyrics}
-        )
+    song, created = Song.objects.get_or_create(
+        artist=artist_clean,
+        title=title_clean
+    )
 
+    # Speichere Lyrics, wenn vorhanden, sonst speichere den Song trotzdem!
+    if lyrics and not error:
+        song.lyrics = lyrics
+
+    song.save()  # <- immer speichern, nicht nur bei Lyrics
+    
+def get_or_create_full_song(artist, title):
+    artist_clean = artist.strip()
+    title_clean = title.strip()
+
+    # Check if song with lyrics exists
+    song = get_cached_lyrics(artist_clean, title_clean)
+    if song:
+        return song
+
+    # Try fetching lyrics from API
+    lyrics, error = fetch_from_api(artist_clean, title_clean)
+
+    # Save song in DB, even if lyrics not found
+    cache_lyrics(artist_clean, title_clean, lyrics if not error else None, error)
+
+    # Return from DB
+    return Song.objects.get(artist__iexact=artist_clean, title__iexact=title_clean)
 
 # Hauptfunktion
 def index(request):
