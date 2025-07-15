@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}🧠 (Smarte)Zusammenfassung{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-light">🎧 Song-Zusammenfassung</h2>
+  <div class="card bg-dark text-white mt-3 p-3">
+    <p style="white-space: pre-wrap;">{{ summary }}</p>
+  </div>
+  <a href="{% url 'index' %}" class="btn btn-outline-light mt-3">← Zurück</a>
+</div>
+{% endblock %}

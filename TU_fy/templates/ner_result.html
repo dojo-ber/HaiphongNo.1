@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Named Entity Recognition Ergebnis</h2>
+
+{% if error %}
+  <p style="color:red;">{{ error }}</p>
+{% else %}
+
+  <h3>Gefundene Entitäten:</h3>
+  {% if entities %}
+    <ul>
+    {% for ent in entities %}
+      <li><strong>{{ ent.label }}</strong>: {{ ent.text }}</li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p>Keine Entitäten gefunden.</p>
+  {% endif %}
+{% endif %}
+
+<a href="{% url 'lyrics_search' %}" class="btn btn-outline-primary mt-4">
+  ← Zurück zur Suche
+</a>
+{% endblock %}

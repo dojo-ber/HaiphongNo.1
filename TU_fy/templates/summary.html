@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}🤦‍♂️ (Primitive)Zusammenfassung{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Zusammenfassung für "{{ artist }} - {{ title }}"</h2>
+
+  <div class="card mt-4">
+    <div class="card-body">
+      <h5 class="card-title text-white">🔍 Zusammenfassung</h5>
+      <p class="card-text text-white">{{ summary }}</p>
+    </div>
+  </div>
+
+  <a href="{% url 'index' %}?artist={{ artist }}&title={{ title }}" class="btn btn-secondary mt-4">← Zurück</a>
+</div>
+{% endblock %}

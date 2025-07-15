@@ -5,10 +5,12 @@ from django.http import JsonResponse
 from bertopic import BERTopic
 from django.shortcuts import render, redirect
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+from sympy import false
 from transformers import pipeline
+from umap import UMAP
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from django.views.decorators.http import require_http_methods
-
+from yt_dlp import YoutubeDL
 import TU_fy
 from app3.models import Song
 import subprocess
@@ -16,10 +18,11 @@ import tempfile
 import os
 import requests
 from django.http import JsonResponse
-
-import tempfile
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+import plotly.io as pio
+from openai import OpenAI
+from django.views.decorators.http import require_POST
+from django.shortcuts import render
+from django.conf import settings
 
 # Modell wird einmal global geladen (Performance!)
 emotion_classifier = pipeline(
@@ -59,6 +62,64 @@ def get_cached_lyrics(artist, title):
         return None
 
 
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+@require_http_methods(['POST'])
+def show_summary(request):
+    lyrics = request.POST.get('lyrics')
+    artist = request.POST.get('artist')
+    title = request.POST.get('title')
+    summary = None
+
+    if lyrics:
+        try:
+            trimmed_lyrics = lyrics[:1000]  # ggf. kürzen
+            result = summarizer(trimmed_lyrics, max_length=60, min_length=20, do_sample=False)
+            summary = result[0]['summary_text']
+        except Exception as e:
+            summary = f"Fehler bei der Zusammenfassung: {str(e)}"
+    else:
+        summary = "Keine Lyrics übergeben."
+
+    return render(request, 'summary.html', {
+        'artist': artist,
+        'title': title,
+        'lyrics': lyrics,
+        'summary': summary,
+    })
+
+from openai.types.chat import ChatCompletionUserMessageParam
+
+
+
+def get_youtube_video(query):
+    try:
+        ydl_opts = {
+            'quiet': True,
+            'skip_download': True,
+            'extract_flat': 'in_playlist',  # funktioniert für ytsearch
+            'force_generic_extractor': False,
+            'noplaylist': True
+        }
+
+        with YoutubeDL(ydl_opts) as ydl:
+            result = ydl.extract_info(f"ytsearch5:{query}", download=False)
+
+            if not result or "entries" not in result:
+                return None, None
+
+            for entry in result["entries"]:
+                if entry and entry.get("url"):
+                    # `url` reicht bei Flat-Search aus
+                    video_url = f"https://www.youtube.com/watch?v={entry['id']}"
+                    return entry["id"], video_url
+
+    except Exception as e:
+        print(f"[YT] Fehler bei der Video-Suche: {e}")
+
+    return None, None
+
+
+
 def fetch_from_api(artist, title):
     try:
         # Verwenden Sie requests.utils.quote statt urllib.parse.quote
@@ -67,7 +128,7 @@ def fetch_from_api(artist, title):
         title_encoded = quote(title)
 
         api_url = f"https://api.lyrics.ovh/v1/{artist_encoded}/{title_encoded}"
-        response = requests.get(api_url, timeout=5)
+        response = requests.get(api_url, timeout=20)
 
         if response.status_code == 200:
             data = response.json()
@@ -118,6 +179,7 @@ def index(request):
     error = None
     artist = None
     title = None
+    video_url = None  # <- NEU
 
     if request.method == 'POST':
         artist = request.POST.get('artist')
@@ -127,26 +189,56 @@ def index(request):
         title = request.GET.get('title')
 
     if artist and title:
-        # Versuche Lyrics aus der Datenbank zu holen
+        # Lyrics aus DB oder API holen
         song = get_cached_lyrics(artist, title)
 
         if song and song.lyrics:
             lyrics = song.lyrics
         else:
-            # Lyrics nicht in DB - API-Abfrage durchführen
             lyrics, error = fetch_from_api(artist, title)
-
-            # Ergebnis in Datenbank speichern (nur wenn erfolgreich)
             cache_lyrics(artist, title, lyrics, error)
+
+        # YouTube-Link suchen
+        _, video_url = get_youtube_video(f"{artist} {title}")
 
     return render(request, 'index.html', {
         'lyrics': lyrics,
         'error': error,
         'artist': artist,
-        'title': title
+        'title': title,
+        'video_url': video_url  # <- NEU
     })
 
 
+
+import spacy
+from django.shortcuts import render
+
+# Lade das Modell einmal global (nicht bei jedem Request)
+nlp = spacy.load("en_core_web_sm")  # oder "en_core_web_sm"
+
+def analyze_ner(request):
+    lyrics = request.POST.get('lyrics', '').strip()
+    if not lyrics:
+        return render(request, 'ner_result.html', {'error': "Keine Lyrics übermittelt."})
+
+    doc = nlp(lyrics)
+    raw_entities = [{"text": ent.text, "label": ent.label_} for ent in doc.ents]
+
+    # Duplikate entfernen:
+    seen = set()
+    unique_entities = []
+    for ent in raw_entities:
+        key = (ent["text"], ent["label"])
+        if key not in seen:
+            seen.add(key)
+            unique_entities.append(ent)
+
+    return render(request, 'ner_result.html', {'entities': unique_entities, 'lyrics': lyrics})
+
+
+
+#testtest
 def imprint(request):
     return render(request, 'imprint.html')
 
@@ -166,12 +258,21 @@ def analyze_lyrics(request):
             if len(docs) < 5:
                 docs = docs * (6 // len(docs) + 1)
 
-            topic_model = BERTopic(language="multilingual", min_topic_size=2)
+            umap_model = UMAP(n_neighbors=2, n_components=2, min_dist=0.0, metric='cosine')
+            topic_model = BERTopic(language="multilingual", min_topic_size=2, umap_model=umap_model)
 
             print("Docs für BERTopic:", docs)
             print("Anzahl Docs:", len(docs))
 
             topics, _ = topic_model.fit_transform(docs)
+
+            # Visualisierung
+            fig = topic_model.visualize_topics()
+            plot_html = pio.to_html(fig, full_html=false)
+
+            fig_hierarchy = topic_model.visualize_hierarchy()
+            hierarchy_html = pio.to_html(fig_hierarchy, full_html=False)
+
             topics_info = topic_model.get_topic_info()
 
             for i, row in topics_info.iterrows():
@@ -180,12 +281,14 @@ def analyze_lyrics(request):
                     continue  # rausfiltern von "Rest"-Thema
 
                 topic_words = topic_model.get_topic(topic_id)
-                filtered_words = [word for word, _ in topic_words if word not in ENGLISH_STOP_WORDS]
+                filtered_words = [word for word, _ in topic_words if word.strip() and word not in ENGLISH_STOP_WORDS]
+
+                topic_name = ", ".join(filtered_words[:3]) if filtered_words else f"Thema {topic_id}"
 
                 formatted_topics.append({
                     'id': topic_id,
-                    'name': f"Thema {topic_id}",
-                    'words': filtered_words[:5]  # Top 5 Wörter
+                    'name': topic_name,
+                    'words': filtered_words[:5]
                 })
                 print("Rendering mit Topics:", formatted_topics)
 
@@ -200,7 +303,9 @@ def analyze_lyrics(request):
 
     return render(request, 'analysis_result.html', {
         'topics': formatted_topics,
-        'original_lyrics': lyrics
+        'original_lyrics': lyrics,
+        'plot_html': plot_html,
+        'hierarchy_html': hierarchy_html
     })
 
 

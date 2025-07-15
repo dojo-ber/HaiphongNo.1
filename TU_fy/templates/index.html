@@ -32,6 +32,7 @@
   </form>
   {% endif %}
 
+
   <!-- Fehleranzeige -->
   {% if error %}
   <div class="text-center alert alert-danger mt-4">{{ error }}</div>
@@ -42,39 +43,64 @@
     </a>
   </div>
   {% endif %}
-
   <!-- Lyrics -->
   {% if lyrics %}
-  <h3>{{ artist }} - {{ title }}</h3>
-  <pre>{{ lyrics }}</pre>
+<div class="d-flex justify-content-between align-items-start mt-4">
+  <!-- Linke Seite: Liedinfos & Text -->
+  <div class="flex-grow-1 me-3">
+    <h3>{{ artist }} - {{ title }}</h3>
+    <pre>{{ lyrics }}</pre>
+  </div>
 
-  <form method="POST" action="{% url 'analyze_lyrics' %}">
+  <!-- Rechte Seite: Buttons in einer Spalte -->
+  <div class="d-flex flex-column align-items-end" style="width: 250px;">
+  {% if video_url %}
+  <a href="{{ video_url }}" target="_blank" class="btn btn-danger mb-2 w-100">
+    🎬 Zum YouTube Video
+  </a>
+  {% endif %}
+
+  <form method="POST" action="{% url 'show_summary' %}" class="w-100 mb-2">
     {% csrf_token %}
-    <input type="hidden" name="lyrics" value="{{ lyrics }}" />
-    <input type="hidden" name="artist" value="{{ artist }}" />
-    <input type="hidden" name="title" value="{{ title }}" />
-    <button class="btn btn-primary mt-3">Theme Analyze</button>
+    <input type="hidden" name="lyrics" value="{{ lyrics }}">
+    <input type="hidden" name="artist" value="{{ artist }}">
+    <input type="hidden" name="title" value="{{ title }}">
+
+      <button class="btn w-100" style="background-color: lightcoral; border-color: lightcoral; color: white;">🤔‍ Zusammenfassung</button>
   </form>
 
-  <form method="POST" action="{% url 'analyze_sentiment' %}">
+
+
+  <form method="POST" action="{% url 'analyze_lyrics' %}" class="w-100 mb-2">
     {% csrf_token %}
     <input type="hidden" name="lyrics" value="{{ lyrics }}" />
-    <input type="hidden" name="artist" value="{{ artist }}" />
-    <input type="hidden" name="title" value="{{ title }}" />
-    <button type="submit" class="btn btn-secondary mt-3">
+    <button class="btn btn-primary btn-info w-100">💭Theme Analyze</button>
+  </form>
+
+  <form method="POST" action="{% url 'analyze_sentiment' %}" class="w-100 mb-2">
+    {% csrf_token %}
+    <input type="hidden" name="lyrics" value="{{ lyrics }}" />
+    <button type="submit" class="btn btn-secondary btn-info w-100">
       🤪 Fast-Stimmungsanalyse
     </button>
   </form>
 
-  <form method="POST" action="{% url 'deep_analyze_sentiment' %}">
+  <form method="POST" action="{% url 'deep_analyze_sentiment' %}" class="w-100">
     {% csrf_token %}
     <input type="hidden" name="lyrics" value="{{ lyrics }}" />
-    <input type="hidden" name="artist" value="{{ artist }}" />
-    <input type="hidden" name="title" value="{{ title }}" />
-    <button type="submit" class="btn btn-secondary mt-3">
+    <button type="submit" class="btn btn-secondary btn-info w-100">
       🎭 Deep-Stimmungsanalyse
     </button>
   </form>
+
+  <form method="POST" action="{% url 'analyze_ner' %}" class="w-100 mt-3">
+  {% csrf_token %}
+  <input type="hidden" name="lyrics" value="{{ lyrics }}">
+  <button type="submit" class="btn btn-warning w-100" style="background-color: darkgray; border-color: darkgray; color: white;">
+    🕵️‍♂️ Named Entity Recognition (NER)
+  </button>
+</form>
+
   <a href="{% url 'lyrics_search' %}" class="btn btn-outline-light mt-4">
     ← Zurück zur Suche
   </a>
