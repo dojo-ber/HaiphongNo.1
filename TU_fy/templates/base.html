@@ -140,7 +140,7 @@
 
     <nav class="navbar fixed-top">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'index' %}">TUFy</a>
+        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'index' %}{% endif %}">TUFy</a>
       </div>
     </nav>
 

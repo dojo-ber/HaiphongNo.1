@@ -209,7 +209,7 @@ def deep_analyze_sentiment(request):
         'sentiment': sentiment.capitalize(),
         'emoji': emoji,
         'original_lyrics': lyrics,
-        'scores': emotions[:5]
+        'scores': emotions[:5],
     })
 
 
